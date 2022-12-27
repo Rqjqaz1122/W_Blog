@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace：名称空间-->
+<mapper namespace="com.wfit.mapper.BlogMapper">
+    <insert id="saveBlog" useGeneratedKeys="true" keyProperty="id">
+        insert into
+            qj_blog.blog(
+                         title, first_picture, content,
+                         description, is_published, is_recommend,
+                         is_appreciation, is_comment_enabled, create_time,
+                         update_time, views, words,
+                         read_time, category_id, is_top,user_id)
+        values (#{title},#{firstPicture},
+                #{content},#{description},
+                #{published},#{recommend},
+                #{appreciation},#{commentEnabled},
+                #{createTime},#{updateTime},
+                #{views},#{words},#{readTime},#{cate},#{top},#{userId});
+    </insert>
+    <update id="blogTop">
+        update qj_blog.blog
+            set  is_top = #{top}
+        where id = #{id}
+    </update>
+    <update id="blogCommend">
+        update qj_blog.blog
+            set is_recommend = #{recommend}
+        where id = #{id}
+    </update>
+    <update id="blogVisibility">
+        update qj_blog.blog
+            set  is_comment_enabled = #{v.commentEnabled},
+                 is_published = #{v.published},
+                 is_recommend = #{v.recommend},
+                 is_appreciation = #{v.appreciation},
+                 is_top = #{v.top}
+        where id = #{id}
+    </update>
+    <update id="updateBlog">
+        update qj_blog.blog
+          set
+              category_id = #{s.cate},
+              content = #{s.content},
+              description = #{s.description},
+              first_picture = #{s.firstPicture},
+              is_published = #{s.published},
+              read_time = #{s.readTime},
+              title = #{s.title},
+              is_top = #{s.top},
+              update_time = #{s.updateTime},
+              views = #{s.views},
+              words = #{s.words}
+        where id = #{s.id}
+    </update>
+    <update id="updateBlogView">
+        update qj_blog.blog
+            set views = #{visit}
+        where id = #{id}
+    </update>
+    <delete id="deleteBlogById">
+        delete
+        from qj_blog.blog
+                 where id = #{id}
+    </delete>
+
+    <select id="newBlogList" resultType="newBlogVo">
+        select id, title
+        from qj_blog.blog
+        where is_published = 1
+        order by create_time DESC
+        limit 0,5
+    </select>
+    <select id="randomBlogList" resultType="randomBlog" >
+        select id, title, first_picture, content,create_time
+        from qj_blog.blog
+        where
+              is_published = 1
+              and is_recommend = 1
+        order by views DESC
+        limit 0,4
+    </select>
+    <resultMap id="getBlogsInfoListResultMap" type="blogDto">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="create_time" property="createTime"/>
+        <result column="description" property="description"/>
+        <result column="is_top" property="top"/>
+        <result column="views" property="views"/>
+        <result column="words" property="words"/>
+        <result column="category_id" property="category.id"/>
+        <result column="category_name" property="category.name"/>
+    </resultMap>
+    <select id="getBlogsInfoList" resultMap="getBlogsInfoListResultMap">
+        select
+               b.id, b.title, b.first_picture, b.content, b.description, b.words,b.create_time,b.views,b.is_top,b.category_id,c.category_name
+        from
+             qj_blog.blog b
+        left join qj_blog.category c on c.id = b.category_id
+        where is_published = 1
+        order by  is_top DESC ,create_time DESC
+        limit #{pageNum},#{pageSize}
+    </select>
+
+    <resultMap id="selectBlogByIdResultMap" type="blogVo">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="create_time" property="createTime"/>
+        <result column="description" property="description"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="content" property="content"/>
+        <result column="first_picture" property="firstPicture"/>
+        <result column="is_top" property="top"/>
+        <result column="views" property="views"/>
+        <result column="words" property="words"/>
+        <result column="category_id" property="category.id"/>
+        <result column="category_name" property="category.name"/>
+        <collection property="tags" ofType="tag">
+            <id column="t_id" property="id"/>
+            <result column="tag_name" property="name"/>
+            <result column="color" property="color"/>
+        </collection>
+
+    </resultMap>
+    <select id="selectBlogById" resultMap="selectBlogByIdResultMap">
+        select
+            b.id, b.title, b.first_picture, b.content, b.description, b.words,b.create_time,b.views,b.is_top ,t.id t_id,t.tag_name,b.category_id,c.category_name
+        from
+            qj_blog.blog b
+                left join qj_blog.blog_tag bt on b.id = bt.blog_id
+                left join qj_blog.tag t on t.id = bt.tag_id
+                left join qj_blog.category c on c.id = b.category_id
+        where b.id = #{id}
+        and is_published = 1
+    </select>
+    <select id="findArchives" resultType="com.wfit.domain.dto.ArchiveDto">
+        select
+               id, title,create_time
+        from
+             qj_blog.blog
+        where
+              is_published = 1
+    </select>
+    <select id="count" resultType="java.lang.Integer">
+        select
+               count(*)
+        from
+             qj_blog.blog
+    </select>
+
+    <resultMap id="getBlogsByTitleOrCategoryIdResultMap" type="blog">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="first_picture" property="firstPicture"/>
+        <result column="is_published" property="published"/>
+        <result column="is_recommend" property="recommend"/>
+        <result column="is_appreciation" property="appreciation"/>
+        <result column="is_comment_enabled" property="commentEnabled"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="is_top" property="top"/>
+        <result column="user_id" property="userId"/>
+        <result column="cid" property="category.id"/>
+        <result column="category_name" property="category.name"/>
+    </resultMap>
+    <select id="getBlogsByTitleOrCategoryId" resultMap="getBlogsByTitleOrCategoryIdResultMap">
+        select b.id, b.title, b.first_picture,
+               b.is_published, b.is_recommend, b.is_appreciation,
+               b.is_comment_enabled, b.create_time, b.update_time,
+               b.category_id, b.is_top,
+               b.user_id,c.id cid,c.category_name
+        from qj_blog.blog b
+        left join qj_blog.category c on b.category_id = c.id
+        <where>
+            <if test="title != null and title != ''">
+                and b.title like CONCAT('%',#{title},'%')
+            </if>
+            <if test="categoryId != null">
+                and b.category_id = #{categoryId}
+            </if>
+        </where>
+    </select>
+    <select id="selectByCategoryIdCount" resultType="java.lang.Integer">
+        select count(*)
+        from qj_blog.blog
+        where category_id = #{id}
+    </select>
+    <select id="selectBlogsId" resultType="java.lang.Long">
+        select id
+        from qj_blog.blog
+    </select>
+
+</mapper>

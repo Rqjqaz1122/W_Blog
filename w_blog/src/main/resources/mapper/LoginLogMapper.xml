@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace：名称空间-->
+<mapper namespace="com.wfit.mapper.LoginLogMapper">
+
+
+    <insert id="saveLoginLog">
+        insert into qj_blog.login_log(username, ip, ip_source, os, browser, status, description, create_time, user_agent)
+        values (#{username},#{ip},#{ipSource},#{os},#{browser},#{status},#{description},#{createTime},#{userAgent});
+    </insert>
+    <delete id="deleteLoginLog">
+        delete
+        from qj_blog.login_log
+                 where id = #{id};
+    </delete>
+    <select id="selectLoginLogsByDate" resultType="com.wfit.domain.entity.LoginLog">
+        select
+               id, username, ip, ip_source, os, browser, status, description, create_time, user_agent
+        from
+             qj_blog.login_log
+        <where>
+                 <if test="beginTime!=null and beginTime != '' and endTime!=null and endTime!='' ">
+                     create_time between #{beginTime} and #{endTime}
+                 </if>
+        </where>
+    </select>
+</mapper>

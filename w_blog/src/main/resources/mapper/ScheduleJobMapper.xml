@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace：名称空间-->
+<mapper namespace="com.wfit.mapper.ScheduleJobMapper">
+    <insert id="saveJobLog">
+        insert into qj_blog.schedule_job_log(job_id, bean_name, method_name, params, status, error, times, create_time)
+        values (#{jobId},#{beanName},#{methodName},#{params},#{status},#{error},#{times},#{createTime});
+    </insert>
+    <update id="updateJobStatus">
+        update qj_blog.schedule_job
+            set status = #{status}
+        where job_id = #{jobId};
+    </update>
+    <update id="updateJob">
+        update qj_blog.schedule_job
+            set  bean_name = #{beanName},
+                 cron = #{cron},
+                 method_name = #{methodName},
+                 params = #{params},
+                 remark = #{remark}
+        where job_id = #{jobId};
+    </update>
+    <delete id="deleteJobById">
+        delete
+        from qj_blog.schedule_job
+                 where job_id = #{jobId};
+    </delete>
+    <delete id="deleteJobLogById">
+        delete
+        from qj_blog.schedule_job_log
+                 where log_id = #{logId};
+    </delete>
+
+    <select id="selectJobs" resultType="com.wfit.domain.entity.ScheduleJob">
+        select job_id, bean_name, method_name, params, cron, status, remark, create_time
+        from qj_blog.schedule_job
+    </select>
+    <select id="selectJobById" resultType="com.wfit.domain.entity.ScheduleJob">
+        select job_id, bean_name, method_name, params, cron, status, create_time
+        from qj_blog.schedule_job
+        where job_id = #{jobId}
+    </select>
+    <select id="selectJobLogs" resultType="com.wfit.domain.entity.ScheduleJobLog">
+        select log_id, job_id, bean_name, method_name, status, error, times, create_time
+        from qj_blog.schedule_job_log
+    </select>
+</mapper>

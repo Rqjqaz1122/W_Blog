@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace：名称空间-->
+<mapper namespace="com.wfit.mapper.TagMapper">
+    <insert id="saveTagsByBlog">
+        insert into qj_blog.blog_tag(blog_id, tag_id)
+        values <foreach collection="tag" item="t" separator=",">
+           (#{id},#{t.id})
+    </foreach>
+    </insert>
+
+    <insert id="saveTag" useGeneratedKeys="true" keyProperty="id" parameterType="tag">
+        insert into
+            qj_blog.tag(tag_name)
+        values <foreach collection="tags" item="tag" separator=",">
+               (#{tag.name})
+          </foreach>
+    </insert>
+    <insert id="save">
+        insert into qj_blog.tag(tag_name, color)
+        values (#{name},#{color});
+    </insert>
+    <update id="updateTag">
+        update qj_blog.tag
+            set tag_name = #{name},
+                color = #{color}
+        where id = #{id}
+    </update>
+    <delete id="deleteTagByBlogId">
+        delete
+        from
+             qj_blog.blog_tag
+        where
+              blog_id = #{id};
+    </delete>
+    <delete id="deleteByTagId">
+        delete
+        from qj_blog.tag
+                 where id = #{id};
+    </delete>
+
+    <select id="tagList" resultType="tag">
+        select
+               id, tag_name name, color
+        from
+             qj_blog.tag
+    </select>
+
+    <select id="selectTag" resultType="com.wfit.domain.dto.SeriesDto">
+        select s.id,s.tag_name name,count(t.blog_id) value
+        from qj_blog.blog_tag t
+                 left join qj_blog.tag s on t.tag_id = s.id
+        GROUP BY t.blog_id
+    </select>
+    <select id="selectAllTagsByBlogs" resultType="com.wfit.domain.dto.TagDto">
+        select
+               bt.blog_id,t.id,t.tag_name name,t.color
+        from
+             qj_blog.blog_tag bt
+        left join qj_blog.tag t on bt.tag_id = t.id;
+    </select>
+    <resultMap id="selectTagNameByBlogsResultMap" type="blogDto">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="create_time" property="createTime"/>
+        <result column="description" property="description"/>
+        <result column="is_top" property="top"/>
+        <result column="views" property="views"/>
+        <result column="words" property="words"/>
+    </resultMap>
+    <select id="selectTagNameByBlogs" resultMap="selectTagNameByBlogsResultMap">
+        select
+            b.id,b.title,b.create_time,b.description,b.is_top,b.views,b.words,b.read_time
+        from qj_blog.tag bt
+        left join qj_blog.blog_tag t on bt.id = t.tag_id
+        left join qj_blog.blog b on b.id = t.blog_id
+        where bt.tag_name = #{tagName}
+        order by b.is_top DESC,b.create_time DESC
+        limit 0,5
+    </select>
+
+    <select id="selectTagById" resultType="com.wfit.domain.dto.TagDto">
+        select
+               bt.blog_id,t.id,t.tag_name name,t.color
+        from qj_blog.blog_tag bt
+        left join qj_blog.tag t on bt.tag_id = t.id
+        <where>
+            bt.blog_id
+            in
+            <foreach collection="ids" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </where>
+    </select>
+    <select id="selectTagNameByBlogsCount" resultType="java.lang.Integer">
+        select distinct count(*)
+        from qj_blog.tag b
+        left join qj_blog.blog_tag t on b.id = t.tag_id
+        where b.tag_name = #{name}
+    </select>
+    <select id="selectTagByIdCount" resultType="java.lang.Integer">
+        select count(*)
+        from qj_blog.blog_tag
+        where tag_id = #{id}
+    </select>
+
+</mapper>

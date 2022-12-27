@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace：名称空间-->
+<mapper namespace="com.wfit.mapper.OperationLogMapper">
+
+
+    <insert id="saveOperationLog">
+        insert into
+            qj_blog.operation_log(username, uri, method, param, description, ip, ip_source, os, browser, times, create_time, user_agent)
+        values
+               (#{username},#{uri},#{method},#{param},#{description},#{ip},#{ipSource},#{os},#{browser},#{times},#{createTime},#{userAgent});
+    </insert>
+    <insert id="saveExceptionLog">
+        insert into
+            qj_blog.exception_log(uri, method, param, description, error, ip, ip_source, os, browser, create_time, user_agent)
+        values
+               (#{uri},#{method},#{param},#{description},#{error},#{ip},#{ipSource},#{os},#{browser},#{createTime},#{userAgent});
+    </insert>
+    <delete id="deleteOperationById">
+        delete
+        from qj_blog.operation_log
+                 where id = #{id};
+    </delete>
+    <delete id="deleteExceptionLogById">
+        delete
+        from qj_blog.exception_log
+                 where id = #{id};
+    </delete>
+    <select id="selectOperationLogs" resultType="com.wfit.domain.entity.OperationLog">
+        select id, username, method, description, ip, ip_source, os, browser, times, create_time
+        from qj_blog.operation_log
+        <where>
+            <if test="beginTime != null and beginTime != '' and endTime != null and endTime != ''">
+                between #{beginTime} and #{endTime}
+            </if>
+        </where>
+    </select>
+    <select id="selectExceptionLogs" resultType="com.wfit.domain.entity.ExceptionLog">
+        select id, method, description, error, ip, ip_source, os, browser, create_time
+        from qj_blog.exception_log
+        <where>
+            <if test="beginTime != null and beginTime != '' and endTime != null and endTime != ''">
+                between #{beginTime} and #{endTime}
+            </if>
+        </where>
+    </select>
+</mapper>

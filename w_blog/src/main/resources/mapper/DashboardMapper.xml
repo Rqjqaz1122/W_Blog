@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace：名称空间-->
+<mapper namespace="com.wfit.mapper.DashboardMapper">
+
+    <select id="selectCityVisit" resultType="com.wfit.domain.dto.CityVisit">
+        select ip_source city,count(*) uv
+        from qj_blog.visitor
+        group by ip_source
+    </select>
+    <select id="pvAndUv" resultType="com.wfit.domain.dto.VisitRecord">
+        select
+               id, pv, uv, date
+        from
+             qj_blog.visit_record
+    </select>
+</mapper>

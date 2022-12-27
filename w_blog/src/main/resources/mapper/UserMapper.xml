@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace：名称空间-->
+<mapper namespace="com.wfit.mapper.UserMapper">
+
+    <select id="selectByUsername" resultType="user">
+        select id, username, password, nickname, avatar, email, create_time, update_time, role
+        from qj_blog.user
+        where username = #{username}
+    </select>
+</mapper>

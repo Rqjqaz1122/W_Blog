@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace：名称空间-->
+<mapper namespace="com.wfit.mapper.SiteMapper">
+    <update id="updateSiteSettings">
+        <foreach collection="settings" item="setting" separator=";">
+            update qj_blog.site_setting
+               <set> name_en = #{setting.nameEn},
+                     name_zh = #{setting.nameZh},
+                     value = #{setting.value},
+                     type = #{setting.type}
+               </set>
+               where id = #{setting.id}
+        </foreach>
+    </update>
+    <delete id="deleteSiteSettingsByIds">
+        delete
+        from qj_blog.site_setting
+        <where>
+            id
+            in
+            <foreach collection="ids" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </where>
+    </delete>
+
+
+    <select id="selectSite" resultType="siteSetting">
+        select
+               id, name_en, name_zh, value,type
+        from
+             qj_blog.site_setting
+    </select>
+    <select id="selectFriendInfo" resultType="friendInfo">
+        select  s.value content
+        from
+             qj_blog.site_setting s
+        where
+              s.type = 4
+    </select>
+
+
+</mapper>

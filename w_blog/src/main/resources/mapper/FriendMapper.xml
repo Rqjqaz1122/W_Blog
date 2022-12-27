@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace：名称空间-->
+<mapper namespace="com.wfit.mapper.FriendMapper">
+    <insert id="saveFriend">
+        insert into qj_blog.friend(nickname, description, website, avatar, is_published, views ,create_time)
+        values (#{nickname},#{description},#{website},#{avatar},#{published},#{views},#{createTime});
+    </insert>
+    <update id="friendPublished">
+        update qj_blog.friend
+            set is_published = #{p}
+        where id = #{id};
+    </update>
+    <update id="updateFriend">
+        update qj_blog.friend
+            set avatar = #{avatar},
+                description = #{description},
+                is_published = #{isPublished},
+                nickname = #{nickname},
+                views = #{views},
+                website = #{website}
+        where id = #{id};
+    </update>
+    <update id="updateFriendInfo">
+        update qj_blog.site_setting
+            set value = #{content}
+        where name_en = 'friendContent'
+    </update>
+    <delete id="deleteFriend">
+        delete
+        from qj_blog.friend
+                 where id = #{id};
+    </delete>
+
+    <select id="selectFriendList" resultType="com.wfit.domain.dto.FriendDto">
+        select
+               avatar,description,nickname,website
+        from
+             qj_blog.friend
+        where
+              is_published = 1
+    </select>
+    <select id="selectFriend" resultType="com.wfit.domain.entity.Friend">
+        select id, nickname, description, website, avatar, is_published, views, create_time
+        from qj_blog.friend
+    </select>
+</mapper>

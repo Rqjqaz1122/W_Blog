@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace：名称空间-->
+<mapper namespace="com.wfit.mapper.MomentsMapper">
+    <insert id="like">
+        insert into qj_blog.like(ip, like_id,like_time)
+        values (#{ip},#{id},#{now});
+    </insert>
+    <insert id="saveMoment">
+        insert into qj_blog.moment(content, create_time, likes, is_published)
+        values (#{content},#{createTime},#{likes},#{published});
+    </insert>
+    <update id="updateLike">
+        update qj_blog.moment
+            set likes = likes + 1
+        where id = #{id}
+    </update>
+    <update id="momentPublished">
+        update qj_blog.moment
+            set  is_published = #{published}
+        where id = #{id}
+    </update>
+    <update id="updateMoment">
+        update qj_blog.moment
+            set content = #{content},
+                create_time = #{createTime},
+                is_published = #{published},
+                likes = #{likes}
+        where id = #{id}
+    </update>
+    <delete id="deleteMoment">
+        delete
+        from qj_blog.moment
+                 where id = #{id};
+    </delete>
+
+
+    <select id="countMoment" resultType="java.lang.Integer">
+        select count(*)
+        from qj_blog.moment
+        where is_published = 1
+    </select>
+    <select id="selectMomentsByPageNum" resultType="moment">
+        select
+               id, content, create_time, likes, is_published
+        from
+             qj_blog.moment
+        where
+              is_published = 1
+        order by create_time DESC
+    </select>
+    <select id="selectMoments" resultType="com.wfit.domain.entity.Moment">
+        select id, content, create_time, likes, is_published published
+        from qj_blog.moment
+    </select>
+    <select id="selectMomentById" resultType="com.wfit.domain.entity.Moment">
+        select id, content, create_time, likes, is_published published
+        from qj_blog.moment
+        where id = #{id}
+    </select>
+</mapper>

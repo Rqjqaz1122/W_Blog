@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace：名称空间-->
+<mapper namespace="com.wfit.mapper.VisitLogMapper">
+
+    <insert id="saveVisitorLog">
+        insert into qj_blog.visitor(uuid, ip, ip_source, os, browser, create_time, last_time, pv, user_agent)
+        values (#{uuid},#{ip},#{ipSource},#{os},#{browser},#{createTime},#{lastTime},#{pv},#{userAgent});
+    </insert>
+    <insert id="saveVisitorBlogLog">
+        insert into qj_blog.visit_log(uuid, uri, method, param, behavior, content, remark, ip, ip_source, os, browser, times, create_time, user_agent)
+        values (#{uuid},#{uri},#{method},#{param},#{behavior},#{content},#{remark},#{ip},#{ipSource},#{os},#{browser},#{times},#{createTime},#{userAgent});
+    </insert>
+    <insert id="saveVisitorRecord">
+        insert into qj_blog.visit_record(pv, uv, date)
+        values (#{pv},#{uv},#{yesterday});
+    </insert>
+    <update id="updateLastTime">
+        update qj_blog.visitor
+            set last_time = #{now}
+        where uuid = #{uuid};
+    </update>
+    <update id="updateVisitor">
+        update qj_blog.visitor
+            set
+                pv = pv + #{count}
+        where uuid = #{uuid};
+    </update>
+    <delete id="deleteVisitorById">
+        delete
+        from qj_blog.visitor
+                 where id = #{id};
+    </delete>
+    <delete id="deleteVisitorByUUID">
+        delete
+        from qj_blog.visit_log
+                 where uuid = #{id};
+    </delete>
+    <delete id="deleteVisitLogById">
+        delete
+        from qj_blog.visit_log
+                 where id = #{id};
+    </delete>
+    <select id="selectVisitLogs" resultType="com.wfit.domain.entity.VisitLog">
+        select id, uuid, behavior, content, ip, ip_source, os, browser, times, create_time
+        from qj_blog.visit_log
+        <where>
+            <if test="uuid != null and uuid != ''">
+                uuid = #{uuid}
+            </if>
+            <where>
+                <if test="bt != null and bt != '' and et != null and et != ''">
+                    between #{bt} and #{et}
+                </if>
+            </where>
+        </where>
+    </select>
+    <select id="selectVisitLogByIp" resultType="java.lang.String">
+        select
+               uuid
+        from
+             qj_blog.visitor
+        where
+              ip = #{ip}
+    </select>
+    <select id="selectVisitorsLogs" resultType="com.wfit.domain.entity.Visitor">
+        select id, uuid, ip, ip_source, os, browser, create_time, last_time, pv, user_agent
+        from qj_blog.visitor
+        <where>
+            <if test="bt != null and bt != '' and et != null and et != ''">
+                between #{bt} and #{et}
+            </if>
+        </where>
+    </select>
+    <select id="getUUIDAndCreateTimeByYesterday" resultType="com.wfit.domain.dto.VisitLogUuidAndTimeDto">
+        select uuid,create_time,count(*) count
+        from qj_blog.visit_log
+        where DATE(create_time) = date_sub(curdate(),interval 1 day)
+        group by uuid
+    </select>
+</mapper>

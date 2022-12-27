@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace：名称空间-->
+<mapper namespace="com.wfit.mapper.CategoryMapper">
+    <insert id="saveCategoryBlog" useGeneratedKeys="true" keyProperty="id">
+        insert into qj_blog.category(category_name)
+        values (#{name});
+    </insert>
+    <update id="updateCategory">
+        update qj_blog.category
+            set category_name = #{name}
+        where id = #{id};
+    </update>
+    <delete id="deleteCategoryById">
+        delete
+        from qj_blog.category
+                 where id = #{id}
+    </delete>
+
+    <select id="categoryList" resultType="category">
+
+        select
+               id,category_name name
+        from
+             qj_blog.category
+    </select>
+    <resultMap id="selectBlogsCategoryNameResultMap" type="blogDto">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="create_time" property="createTime"/>
+        <result column="description" property="description"/>
+        <result column="is_top" property="top"/>
+        <result column="views" property="views"/>
+        <result column="words" property="words"/>
+        <result column="category_id" property="category.id"/>
+        <result column="category_name" property="category.name"/>
+        <collection property="tags" ofType="tag">
+            <id column="t_id" property="id"/>
+            <result column="tag_name" property="name"/>
+            <result column="color" property="color"/>
+        </collection>
+
+    </resultMap>
+    <select id="selectBlogsCategoryName" resultMap="selectBlogsCategoryNameResultMap">
+        select
+            b.id, b.title, b.first_picture, b.content, b.description, b.words,b.create_time,b.views,b.is_top ,t.id t_id,t.tag_name,b.category_id,c.category_name
+        from
+            qj_blog.blog b
+                left join qj_blog.blog_tag bt on b.id = bt.blog_id
+                left join qj_blog.tag t on t.id = bt.tag_id
+                left join qj_blog.category c on c.id = b.category_id
+        where c.category_name = #{name}
+              and b.is_published = 1
+        order by is_top DESC,create_time DESC
+        limit #{pageNum},4
+    </select>
+    <select id="countByCategoryName" resultType="java.lang.Long">
+        select count(*)
+        from qj_blog.category c
+        left join qj_blog.blog b on c.id = b.category_id
+        where c.category_name = #{name}
+    </select>
+    <select id="selectCategoryList" resultType="SeriesDto">
+        SELECT
+               c.id,c.category_name name,COUNT(*) value
+        from qj_blog.blog b
+                 left join qj_blog.category c on b.category_id = c.id
+        group by b.category_id
+    </select>
+    <select id="selectCategoryById" resultType="com.wfit.domain.entity.Category">
+        select c.id,c.category_name name
+        from qj_blog.blog b
+        left join qj_blog.category c on c.id = b.category_id
+        <where>
+            b.id
+            in
+            <foreach collection="ids" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </where>
+    </select>
+</mapper>
